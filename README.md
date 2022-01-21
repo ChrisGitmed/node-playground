@@ -1,4 +1,5 @@
 # Node/Express API
+A simple Node/Express API created to toy with new ideas.
 
 ## Startup
 * Run `yarn install`
