@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require('express')
 const morgan = require('morgan')
 const { createServer } = require('http');
@@ -24,6 +25,8 @@ class Application {
 
     app.use(express.json())
       .use(morgan('dev'))
+      .use(cors({ exposedHeaders: ['Content-Disposition'] }))
+
       .use('/api', routes)
 
       // Top level error handling
