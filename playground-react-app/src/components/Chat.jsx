@@ -7,6 +7,7 @@ const Chat = () => {
 
   useEffect(() => {
     const socket = io(process.env.REACT_APP_API_URL)
+    console.log('socket: ', socket)
 
     socket.on('connect', () => {
       const connectMsg = `Socket id ${socket.id} connected`

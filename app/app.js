@@ -1,16 +1,27 @@
 const express = require('express')
 const morgan = require('morgan')
 const { createServer } = require('http');
-const { Server } = require('socket.io')
+const socketio = require('socket.io')
 
 const { Err } = require('./lib/error');
 const routes = require('./router')
 const config = require('./config')
 
-const app = express()
+const app = express();
+
+const httpServer = createServer(app)
+const io = socketio(httpServer)
+
+
 
 class Application {
   constructor() {
+    console.log('io: ', io)
+    io.on('connection', socket => {
+      console.log('fired!')
+      console.log('socket: ', socket)
+    })
+
     app.use(express.json())
       .use(morgan('dev'))
       .use('/api', routes)
@@ -34,6 +45,14 @@ class Application {
         return res.status(500).json({ message: `Uknown error occured: ${err.message}` });
       });
 
+    // io.on('connection', socket => {
+
+    //   console.log('socket.id: ', socket.id)
+    //   socket.on('custom-event', () => {
+    //     console.log('fired')
+    //   })
+    // })
+
     this.app = app;
   };
 
@@ -41,6 +60,14 @@ class Application {
     process.on('uncaughtException', e => console.error('Top-Level exception', e, e.stack));
 
     return new Promise((resolve, reject) => {
+      io.on('connection', socket => {
+
+        console.log('socket.id: ', socket.id)
+        socket.on('custom-event', () => {
+          console.log('fired')
+        })
+      })
+
       app.listen(port, async (err) => {
         if (err) {
           console.log(err);
