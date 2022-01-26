@@ -11,13 +11,16 @@ const config = require('./config')
 const app = express();
 
 const httpServer = createServer(app)
-const io = socketio(httpServer)
+const io = socketio(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000'
+  }
+})
 
 
 
 class Application {
   constructor() {
-    console.log('io: ', io)
     io.on('connection', socket => {
       console.log('fired!')
       console.log('socket: ', socket)
@@ -71,7 +74,7 @@ class Application {
         })
       })
 
-      app.listen(port, async (err) => {
+      httpServer.listen(port, async (err) => {
         if (err) {
           console.log(err);
           reject(err);
