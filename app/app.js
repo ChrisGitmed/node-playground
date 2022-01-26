@@ -15,17 +15,31 @@ const io = new Server(httpServer, { cors: { origin: config.FRONT_END_URL }});
 class Application {
   constructor() {
 
+    let interval;
     const clients = [];
     io.on('connection', socket => {
       console.log(`User Connected: ${socket.id}`);
       clients.push(socket.id);
-      socket.emit('getCount', clients.length);
+      socket.join('room')
+      socket.emit("newActivity", `You are connected!`)
+      socket.to('room').emit("newActivity", `Socket id ${socket.id} connected`);
+
+      if (interval) {
+        clearInterval(interval);
+      }
+      interval = setInterval(() => getApiAndEmit(socket), 1000);
 
       socket.on('disconnect', () => {
         console.log(`User Disconnected: ${socket.id}`);
         clients.splice(clients.indexOf(socket.id), 1);
       });
     });
+
+    const getApiAndEmit = socket => {
+      const response = new Date();
+      // Emitting a new message. Will be consumed by the client
+      socket.emit("FromAPI", response);
+    };
 
     app.use(express.json())
       .use(morgan('dev'))
