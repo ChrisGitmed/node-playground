@@ -1,14 +1,32 @@
+const { createServer } = require('http');
 const express = require('express')
 const morgan = require('morgan')
+const { Server } = require('socket.io')
 
 const { Err } = require('./lib/error');
 const routes = require('./router')
 const config = require('./config')
 
-const app = express()
+
+const app = express();
+const httpServer = createServer(app)
+const io = new Server(httpServer, { cors: { origin: config.FRONT_END_URL }});
 
 class Application {
   constructor() {
+
+    const clients = [];
+    io.on('connection', socket => {
+      console.log(`User Connected: ${socket.id}`);
+      clients.push(socket.id);
+      socket.emit('getCount', clients.length);
+
+      socket.on('disconnect', () => {
+        console.log(`User Disconnected: ${socket.id}`);
+        clients.splice(clients.indexOf(socket.id), 1);
+      });
+    });
+
     app.use(express.json())
       .use(morgan('dev'))
       .use('/api', routes)
@@ -39,7 +57,8 @@ class Application {
     process.on('uncaughtException', e => console.error('Top-Level exception', e, e.stack));
 
     return new Promise((resolve, reject) => {
-      app.listen(port, async (err) => {
+
+      httpServer.listen(port, async (err) => {
         if (err) {
           console.log(err);
           reject(err);
