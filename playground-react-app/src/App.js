@@ -1,8 +1,13 @@
 import './App.css';
 
+import Chat from './components/Chat';
+
 function App() {
   return (
-    <div className='text-center my-4'>Node Playground</div>
+    <>
+      <h2 className='text-center mt-4'>Node Playground</h2>
+      <Chat />
+    </>
   )
 }
 
