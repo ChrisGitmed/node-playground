@@ -1,35 +1,27 @@
-const cors = require('cors');
+const { createServer } = require('http');
 const express = require('express')
 const morgan = require('morgan')
-const { createServer } = require('http');
-const socketio = require('socket.io')
+const { Server } = require('socket.io')
 
 const { Err } = require('./lib/error');
 const routes = require('./router')
 const config = require('./config')
 
+
 const app = express();
-
 const httpServer = createServer(app)
-const io = socketio(httpServer, {
-  cors: {
-    origin: 'http://localhost:3000'
-  }
-})
-
-
+const io = new Server(httpServer, { cors: { origin: config.FRONT_END_URL }});
 
 class Application {
   constructor() {
+
     io.on('connection', socket => {
       console.log('fired!')
-      console.log('socket: ', socket)
-    })
+      console.log('socket.id: ', socket.id)
+    });
 
     app.use(express.json())
       .use(morgan('dev'))
-      .use(cors({ exposedHeaders: ['Content-Disposition'] }))
-
       .use('/api', routes)
 
       // Top level error handling
@@ -51,14 +43,6 @@ class Application {
         return res.status(500).json({ message: `Uknown error occured: ${err.message}` });
       });
 
-    // io.on('connection', socket => {
-
-    //   console.log('socket.id: ', socket.id)
-    //   socket.on('custom-event', () => {
-    //     console.log('fired')
-    //   })
-    // })
-
     this.app = app;
   };
 
@@ -66,13 +50,6 @@ class Application {
     process.on('uncaughtException', e => console.error('Top-Level exception', e, e.stack));
 
     return new Promise((resolve, reject) => {
-      io.on('connection', socket => {
-
-        console.log('socket.id: ', socket.id)
-        socket.on('custom-event', () => {
-          console.log('fired')
-        })
-      })
 
       httpServer.listen(port, async (err) => {
         if (err) {
