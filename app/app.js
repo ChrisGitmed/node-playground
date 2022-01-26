@@ -15,9 +15,16 @@ const io = new Server(httpServer, { cors: { origin: config.FRONT_END_URL }});
 class Application {
   constructor() {
 
+    const clients = [];
     io.on('connection', socket => {
-      console.log('fired!')
       console.log('socket.id: ', socket.id)
+      clients.push(socket.id);
+      socket.emit('getCount', clients.length);
+
+      socket.on('disconnect', () => {
+        console.log(`User Disconnected: ${socket.id}`);
+        clients.splice(clients.indexOf(socket.id), 1);
+      });
     });
 
     app.use(express.json())
