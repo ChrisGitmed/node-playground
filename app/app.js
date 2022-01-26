@@ -17,7 +17,7 @@ class Application {
 
     const clients = [];
     io.on('connection', socket => {
-      console.log('socket.id: ', socket.id)
+      console.log(`User Connected: ${socket.id}`);
       clients.push(socket.id);
       socket.emit('getCount', clients.length);
 
