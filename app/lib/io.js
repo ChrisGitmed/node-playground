@@ -22,12 +22,6 @@ class IO {
       socket.on('disconnect', () => console.log(`User Disconnected: ${socket.id}`));
     });
   }
-
-  static getApiAndEmit = socket => {
-    const response = new Date();
-    // Emitting a new message. Will be consumed by the client
-    socket.emit("FromAPI", response);
-  };
   
   // Create HTTP Server
   static createHttpServer = server => new Server(server, { cors: { origin: config.FRONT_END_URL }});
