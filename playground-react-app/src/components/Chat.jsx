@@ -15,7 +15,7 @@ const Chat = () => {
       setResponse(data);
     });
 
-    socket.on("newActivity", (data) => {
+    socket.on("join", (data) => {
       setActivity((prevActivity) => [...prevActivity, data])
     })
 
